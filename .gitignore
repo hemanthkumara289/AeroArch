@@ -1,0 +1,15 @@
+# CMake build files
+build/
+
+# VS Code
+.vscode/
+
+# Compiled binaries
+*.o
+*.out
+
+# Debug files
+*.dSYM/
+
+# Temporary files
+*~
