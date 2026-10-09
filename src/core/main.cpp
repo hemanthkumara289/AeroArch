@@ -1,28 +1,43 @@
 
 #include <iostream>
+#include <stdexcept>
 
 #include "aeroarch/core/version.hpp"
+#include "aeroarch/system/system_info.hpp"
+
 namespace aeroarch
 {
     void print_welcome()
     {
-        std::cout << "================================\n";
-        std::cout << "          " << VERSION_NAME << " OS\n";
-        std::cout << "================================\n";
+        const auto info = system::get_system_info();
 
-        std::cout << "Version: "
-                  << VERSION_MAJOR << "."
-                  << VERSION_MINOR << "."
-                  << VERSION_PATCH << '\n';
+        std::cout << "====================================\n";
+        std::cout << "          " << VERSION_NAME << " OS\n";
+        std::cout << "====================================\n";
+
+        std::cout << "Version: " << VERSION_MAJOR << "."
+                  << VERSION_MINOR << "." << VERSION_PATCH << '\n';
+
+        std::cout << "Hostname: " << info.hostname << '\n';
+        std::cout << "Kernel: " << info.kernel_version << '\n';
+        std::cout << "Architecture: " << info.architecture << '\n';
 
         std::cout << "Status: Development\n";
-        std::cout << "Foundation: Linux (initially)\n";
-        std::cout << "================================\n";
+        std::cout << "====================================\n";
     }
 }
 
 int main()
 {
-    aeroarch::print_welcome();
+    try
+    {
+        aeroarch::print_welcome();
+    }
+    catch (const std::exception& error)
+    {
+        std::cerr << "AeroArch error: " << error.what() << '\n';
+        return 1;
+    }
+
     return 0;
 }

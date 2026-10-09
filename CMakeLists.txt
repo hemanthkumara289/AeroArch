@@ -9,6 +9,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_executable(aeroarch
     src/core/main.cpp
+    src/system/system_info.cpp
 )
 
 target_include_directories(aeroarch PRIVATE
