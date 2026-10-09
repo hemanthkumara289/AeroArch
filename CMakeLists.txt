@@ -7,11 +7,19 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_executable(aeroarch
-    src/core/main.cpp
+add_library(aeroarch_core STATIC
     src/system/system_info.cpp
 )
 
-target_include_directories(aeroarch PRIVATE
-    ${CMAKE_SOURCE_DIR}/include
+target_include_directories(aeroarch_core
+    PUBLIC
+        ${CMAKE_SOURCE_DIR}/include
+)
+
+add_executable(aeroarch
+    src/core/main.cpp
+)
+
+target_link_libraries(aeroarch
+    PRIVATE aeroarch_core
 )
