@@ -1,14 +1,20 @@
 
 #include <iostream>
 
+#include "aeroarch/core/version.hpp"
 namespace aeroarch
 {
     void print_welcome()
     {
         std::cout << "================================\n";
-        std::cout << "          AeroArch OS\n";
+        std::cout << "          " << VERSION_NAME << " OS\n";
         std::cout << "================================\n";
-        std::cout << "Version: 0.1.0\n";
+
+        std::cout << "Version: "
+                  << VERSION_MAJOR << "."
+                  << VERSION_MINOR << "."
+                  << VERSION_PATCH << '\n';
+
         std::cout << "Status: Development\n";
         std::cout << "Foundation: Linux (initially)\n";
         std::cout << "================================\n";
