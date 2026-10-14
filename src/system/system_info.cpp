@@ -60,9 +60,20 @@ SystemInfo get_system_info()
             continue;
         }
 
-        const std::string key = line.substr(0, separator);
+        // Trim whitespace around the field name
+        std::string key = line.substr(0, separator);
 
-        if (key == "model name" || key == "Hardware")
+        const auto key_start = key.find_first_not_of(" \t");
+
+        if (key_start == std::string::npos)
+        {
+            continue;
+        }
+
+        const auto key_end = key.find_last_not_of(" \t");
+        key = key.substr(key_start, key_end - key_start + 1);
+
+        if (key == "model name" || key == "Hardware" || key == "Processor")
         {
             info.cpu_model = line.substr(separator + 1);
 
