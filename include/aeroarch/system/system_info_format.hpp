@@ -7,5 +7,6 @@
 
 namespace aeroarch::system
 {
-std::string format_system_info(const SystemInfo& info);
+std::string format_system_info(const SystemInfo& info, bool show_cpu = true,
+                               bool show_memory = true);
 }

@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_library(aeroarch_core STATIC
+    src/core/config.cpp
     src/core/logger.cpp
     src/system/system_info.cpp
     src/system/system_info_format.cpp
