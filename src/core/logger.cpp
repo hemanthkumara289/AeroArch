@@ -115,7 +115,9 @@ void Logger::log(LogLevel level, std::string_view message)
 
         if (!log_file_)
         {
-            throw std::runtime_error("Failed to write AeroArch log file");
+            std::cerr << "[LOGGER ERROR] Failed to write AeroArch log file\n";
+            log_file_.clear();
+            log_file_.close();
         }
     }
 }
