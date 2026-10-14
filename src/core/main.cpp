@@ -1,7 +1,9 @@
 
+#include <exception>
+#include <filesystem>
 #include <iostream>
-#include <stdexcept>
 
+#include "aeroarch/core/logger.hpp"
 #include "aeroarch/core/version.hpp"
 #include "aeroarch/system/system_info.hpp"
 #include "aeroarch/system/system_info_format.hpp"
@@ -28,9 +30,21 @@ void print_welcome()
 
 int main()
 {
+    using aeroarch::core::Logger;
+
     try
     {
+        auto& logger = Logger::instance();
+        logger.set_minimum_level(aeroarch::core::LogLevel::Info);
+
+        logger.initialize(std::filesystem::path("logs") / "aeroarch.log");
+
+        logger.info("AeroArch startup initiated");
+        logger.debug("Collecting system information");
+
         aeroarch::print_welcome();
+
+        logger.info("AeroArch startup completed");
     }
     catch (const std::exception& error)
     {
