@@ -48,6 +48,12 @@ bool parse_bool(const std::string& value)
 
     throw std::runtime_error("Invalid boolean value: " + value);
 }
+
+[[noreturn]] void config_error(const std::filesystem::path& file, std::size_t line_number,
+                               const std::string& message)
+{
+    throw std::runtime_error(file.string() + ":" + std::to_string(line_number) + ": " + message);
+}
 } // namespace
 
 Config load_config(const std::filesystem::path& config_file)
@@ -55,17 +61,27 @@ Config load_config(const std::filesystem::path& config_file)
     Config config;
     std::ifstream file(config_file);
 
-    // A missing configuration file uses the default settings.
+    // Missing files use defaults, but other open failures are errors.
     if (!file.is_open())
     {
+        std::error_code error;
+        const bool exists = std::filesystem::exists(config_file, error);
+
+        if (error || exists)
+        {
+            throw std::runtime_error("Cannot open configuration file: " + config_file.string());
+        }
+
         return config;
     }
 
     std::string line;
     std::string section;
+    std::size_t line_number = 0;
 
     while (std::getline(file, line))
     {
+        ++line_number;
         line = trim(line);
 
         if (line.empty() || line[0] == '#' || line[0] == ';')
@@ -73,9 +89,20 @@ Config load_config(const std::filesystem::path& config_file)
             continue;
         }
 
-        if (line.front() == '[' && line.back() == ']')
+        if (line.front() == '[')
         {
+            if (line.back() != ']' || line.size() < 3)
+            {
+                config_error(config_file, line_number, "Malformed section header");
+            }
+
             section = to_upper(trim(line.substr(1, line.size() - 2)));
+
+            if (section != "LOGGING" && section != "SYSTEM")
+            {
+                config_error(config_file, line_number, "Unknown section: " + section);
+            }
+
             continue;
         }
 
@@ -83,30 +110,55 @@ Config load_config(const std::filesystem::path& config_file)
 
         if (separator == std::string::npos)
         {
-            continue;
+            config_error(config_file, line_number, "Expected KEY=VALUE");
         }
 
         const std::string key = to_upper(trim(line.substr(0, separator)));
+
         const std::string value = trim(line.substr(separator + 1));
 
-        if (section == "LOGGING" && key == "LEVEL")
+        if (key.empty() || value.empty())
         {
-            const std::string level = to_upper(value);
+            config_error(config_file, line_number, "Setting name and value must not be empty");
+        }
 
-            if (level != "DEBUG" && level != "INFO" && level != "WARNING" && level != "ERROR")
+        try
+        {
+            if (section == "LOGGING" && key == "LEVEL")
             {
-                throw std::runtime_error("Invalid logging level: " + value);
+                const std::string level = to_upper(value);
+
+                if (level != "DEBUG" && level != "INFO" && level != "WARNING" && level != "ERROR")
+                {
+                    throw std::runtime_error("Invalid logging level: " + value);
+                }
+
+                config.log_level = level;
+            }
+            else if (section == "SYSTEM" && key == "SHOW_CPU")
+            {
+                config.show_cpu = parse_bool(value);
+            }
+            else if (section == "SYSTEM" && key == "SHOW_MEMORY")
+            {
+                config.show_memory = parse_bool(value);
+            }
+            else
+            {
+                config_error(config_file, line_number,
+                             "Unknown setting '" + key + "' in section [" + section + "]");
+            }
+        }
+        catch (const std::runtime_error& error)
+        {
+            const std::string message = error.what();
+
+            if (message.find(config_file.string() + ":") == 0)
+            {
+                throw;
             }
 
-            config.log_level = level;
-        }
-        else if (section == "SYSTEM" && key == "SHOW_CPU")
-        {
-            config.show_cpu = parse_bool(value);
-        }
-        else if (section == "SYSTEM" && key == "SHOW_MEMORY")
-        {
-            config.show_memory = parse_bool(value);
+            config_error(config_file, line_number, message);
         }
     }
 
