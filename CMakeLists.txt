@@ -26,3 +26,15 @@ add_executable(aeroarch
 target_link_libraries(aeroarch
     PRIVATE aeroarch_core
 )
+
+find_package(Qt6 REQUIRED COMPONENTS Widgets)
+
+add_executable(aeroarch_gui
+    src/gui/main_window.cpp
+)
+
+target_link_libraries(aeroarch_gui
+    PRIVATE
+        aeroarch_core
+        Qt6::Widgets
+)
