@@ -38,3 +38,17 @@ target_link_libraries(aeroarch_gui
         aeroarch_core
         Qt6::Widgets
 )
+
+add_executable(aeroarch_shell
+    src/shell/main.cpp
+    src/shell/app_search.cpp
+)
+
+target_include_directories(aeroarch_shell
+    PRIVATE
+        ${CMAKE_SOURCE_DIR}/include
+)
+
+target_link_libraries(aeroarch_shell
+    PRIVATE Qt6::Widgets
+)
